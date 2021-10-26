@@ -1,3 +1,5 @@
+from metrics import accuracy, precision
+
 import random
 import csv
 
@@ -7,7 +9,7 @@ class Perceptron:
     """ Constructor de la clase perceptron. Inicializa aleatoriamente los pesos
         de cada input entre -0.05 y 0.05
         Parámetros:
-            - input_dimension: Cantidad de inputs que recibe el perceptron
+            - input_dimension: Cantidad de inputs que recibe el perceptron (Sin contar el sesgo)
             - activation_function: Función de un parámetro que será usada como función de activación
     """
     def __init__(self, input_dimension, activation_function):
@@ -63,7 +65,7 @@ class Perceptron:
 
     """ Entrena un perceptron para clasificar los datos en un dataset
         Parámetros:
-            - dataset: Una clase que hereda el mixin DatasetMixin (En esta tarea
+            - dataset: Instancia de una clase que hereda el mixin DatasetMixin (En esta tarea
               existen dos: BinaryDataset y MultiClassDataset) que carga un dataset
               de un archivo csv y permite realizar ciertas operaciones sobre el
               mismo
@@ -78,12 +80,17 @@ class Perceptron:
         dataset.add_bias_term()
         assert(dataset.feature_vector_length() == len(self.weights))
 
+        print("Training information\n")
+        print("Epoch, Precision, Accuracy")
+
         for current_epoch in range(epochs):
 
             epoch_errors = False
             error_number = 0
+            true_positives = 0
+            false_positives = 0
 
-            for features, expected_value in dataset:
+            for features, expected_value in dataset.training_data_iter():
 
                 output_value = self.output(features)
                 
@@ -92,16 +99,22 @@ class Perceptron:
                     epoch_errors = True
                     error_number += 1
 
+                    if expected_value == 0:
+                        false_positives +=1
+
                     self.adjust_weights(expected_value, output_value, learning_rate, features)
+                else:
+                    if expected_value == 1:
+                        true_positives += 1
 
 
             if not epoch_errors:
                 if verbose:
-                    print(f'Todos los datos han sido correctamente clasificados en el epoch {current_epoch + 1}')
+                    print(f'{current_epoch + 1}, {precision(true_positives, false_positives)}, {accuracy(dataset.training_data_size(), error_number)}')
                 break
             else:
                 if verbose:
-                    print(f'Se ha terminado la epoch {current_epoch + 1} con {error_number} errores en {dataset.size()} muestras')
+                    print(f'{current_epoch + 1}, {precision(true_positives, false_positives)}, {accuracy(dataset.training_data_size(), error_number)}')
 
         if save_weights != "":
             self.save_weights()
@@ -109,6 +122,41 @@ class Perceptron:
             if verbose:
                 print("Pesos finales: ")
                 print(self.weights)
+                print("")
+
+    """ Devuelve la precision y la accuracy para un dataset test
+        Parámetros:
+            - Dataset: Instancia de una clase que hereda el mixin DatasetMixin (En esta tarea
+              existen dos: BinaryDataset y MultiClassDataset) que carga un dataset
+              de un archivo csv y permite realizar ciertas operaciones sobre el
+              mismo
+    """
+    def eval(self, dataset):
+
+        print("Test information\n")
+        print("Precision, Accuracy")
+
+        error_number = 0
+        true_positives = 0
+        false_positives = 0
+
+        for features, expected_value in dataset.test_data_iter():
+
+            output_value = self.output(features)
+            
+            if output_value != expected_value:
+
+                error_number += 1
+
+                if expected_value == 0:
+                    false_positives +=1
+
+            else:
+                if expected_value == 1:
+                    true_positives += 1
+
+
+        print(f'{precision(true_positives, false_positives)}, {accuracy(dataset.test_data_size(), error_number)}')
 
 
 

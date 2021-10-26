@@ -1,4 +1,5 @@
 from Perceptron import Perceptron
+from metrics import precision, accuracy
 
 """La clase Layer representa una capa de perceptrones. Esta muy sencilla implmentación asume
 que todos los perceptrones de la capa reciben exactamente el mismo input"""
@@ -52,12 +53,22 @@ class Layer:
         dataset.add_bias_term()
         assert(dataset.feature_vector_length() == len(self.neurons[0].weights))
 
+        labels_header = ",".join(["prec. label " + str(key) for key in dataset.get_labels()])       
+        print("Training information\n")
+        print(f'epoch, accuracy, {labels_header}')
+
         for current_epoch in range(epochs):
 
             epoch_errors = False
             error_number = 0
+            true_positives = {}
+            false_positives = {}
 
-            for features, expected_value in dataset:
+            for key in dataset.get_labels():
+                true_positives[key] = 0
+                false_positives[key] = 0
+
+            for features, expected_value in dataset.training_data_iter():
 
                 output_value = self.output(features)
 
@@ -76,18 +87,80 @@ class Layer:
                             is_incorrect = True
                             self.neurons[i].adjust_weights(0, 1, learning_rate, features)
 
+                            if sum(output_value) == 1:
+                                false_positives[str(i)] += 1
+
                 if is_incorrect:
                     epoch_errors = True
                     error_number += 1
+                else:
+                    true_positives[str(index)] += 1
+
+            precision_list = []
+
+            for key in dataset.get_labels():
+                precision_list.append(precision(true_positives[key], false_positives[key]))
+
+            precision_string = ",".join([str(value) for value in precision_list])
 
             if not epoch_errors:
                 if verbose:
-                    print(f'Todos los datos han sido correctamente clasificados en el epoch {current_epoch + 1}')
-                    break
+                    print(f'{current_epoch}, {accuracy(dataset.training_data_size(), error_number)}, {precision_string}')
+                break
             else:
                 if verbose:
-                    print(f'Se ha terminado la epoch {current_epoch + 1} con {error_number} errores en {dataset.size()} muestras')
+                    print(f'{current_epoch}, {accuracy(dataset.training_data_size(), error_number)}, {precision_string}')
                     dataset.shuffle_data()
+
+    def eval(self, dataset):
+
+        labels_header = ",".join(["prec. label " + str(key) for key in dataset.get_labels()])
+        print('Test information\n')
+        print(f'accuracy, {labels_header}')
+
+        error_number = 0
+        true_positives = {}
+        false_positives = {}
+
+        for key in dataset.get_labels():
+            true_positives[key] = 0
+            false_positives[key] = 0
+
+
+        for features, expected_value in dataset.test_data_iter():
+
+            output_value = self.output(features)
+
+            index = dataset.get_label_index(expected_value)
+
+            is_incorrect = False
+
+            for i in range(len(output_value)):
+
+                if i == index:
+                    if output_value[index] != 1:
+                        is_incorrect = True
+                else:
+                    if output_value[i] != 0:
+                        is_incorrect = True
+
+                        if sum(output_value) == 1:
+                            false_positives[str(i)] += 1
+
+            if is_incorrect:
+                error_number += 1
+            else:
+                true_positives[str(index)] += 1
+
+        precision_list = []
+
+        for key in dataset.get_labels():
+            precision_list.append(precision(true_positives[key], false_positives[key]))
+
+        precision_string = ",".join([str(value) for value in precision_list])
+        print(f'{accuracy(dataset.training_data_size(), error_number)}, {precision_string}')
+
+        
 
 """Esta clase representa un multilayer perceptron"""
 class MLP:
