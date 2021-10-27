@@ -99,7 +99,7 @@ class Layer:
             precision_list = []
 
             for key in dataset.get_labels():
-                precision_list.append(precision(true_positives[key], false_positives[key]))
+                precision_list.append(round(precision(true_positives[key], false_positives[key]), 4))
 
             precision_string = ",".join([str(value) for value in precision_list])
 
@@ -110,8 +110,15 @@ class Layer:
             else:
                 if verbose:
                     print(f'{current_epoch}, {accuracy(dataset.training_data_size(), error_number)}, {precision_string}')
-                    dataset.shuffle_data()
+                    dataset.shuffle_training_data()
 
+    """ Devuelve la precision y la accuracy para un dataset test
+        Parámetros:
+            - Dataset: Instancia de una clase que hereda el mixin DatasetMixin (En esta tarea
+              existen dos: BinaryDataset y MultiClassDataset) que carga un dataset
+              de un archivo csv y permite realizar ciertas operaciones sobre el
+              mismo
+    """
     def eval(self, dataset):
 
         labels_header = ",".join(["prec. label " + str(key) for key in dataset.get_labels()])
@@ -155,10 +162,10 @@ class Layer:
         precision_list = []
 
         for key in dataset.get_labels():
-            precision_list.append(precision(true_positives[key], false_positives[key]))
+            precision_list.append(round(precision(true_positives[key], false_positives[key]), 2))
 
         precision_string = ",".join([str(value) for value in precision_list])
-        print(f'{accuracy(dataset.training_data_size(), error_number)}, {precision_string}')
+        print(f'{accuracy(dataset.test_data_size(), error_number)}, {precision_string}')
 
         
 

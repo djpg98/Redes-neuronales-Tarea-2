@@ -9,5 +9,5 @@ classifier = Layer(
     activation_function=lambda x: 1 if x >= 0 else 0
 )
 
-classifier.train_layer(dataset, 50, 0.001, True)
+classifier.train_layer(dataset, 50, 0.01, True)
 classifier.eval(dataset)

@@ -19,10 +19,14 @@ class DatasetMixin:
 
         return len(self.features)
 
+    """ Devuelve la cantidad de elementos pertenecientes
+        al conjunto de entrenamiento del dataset """
     def training_data_size(self):
 
         return len(self.training_data)
 
+    """ Devuelve la cantidad de elementos pertenecientes
+        al conjunto de prueba del dataset """
     def test_data_size(self):
 
         return len(self.test_data)
@@ -41,21 +45,34 @@ class DatasetMixin:
 
             yield pair
 
+    """ Iterador para el conjunto de datos de entrenamiento
+        del dataset
+    """
     def training_data_iter(self):
 
         for index in self.training_data:
 
             yield (self.features[index], self.values[index])
 
+    """ Iterador para el conjunto de datos de prueba
+        del dataset
+    """
     def test_data_iter(self):
 
         for index in self.test_data:
 
             yield (self.features[index], self.values[index])
 
+    """ Altera aleatoriamente el orden en que se iteran los elementos del
+        conjunto de datos de entrenamiento
+    """
     def shuffle_training_data(self):
         random.shuffle(self.training_data)
 
+""" Esta clase representa a los datasets donde solo existen dos categorías
+    Una será representada con la etiqueta 1 (La llamada categoría positiva)
+    y las demás con 0
+"""
 class BinaryDataset(DatasetMixin):
 
     def __init__(self, datafile, positive_category):
