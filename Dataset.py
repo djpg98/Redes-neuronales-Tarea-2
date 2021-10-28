@@ -130,9 +130,10 @@ class MultiClassDataset(DatasetMixin):
 
             csv_file.close()
 
-        index_list = [i for i in range(len(self.features))]
-        self.training_data = random.sample(index_list, int(0.80 * len(self.features)))
-        self.test_data = [index for index in index_list if index not in self.training_data]
+        self.index_list = [i for i in range(len(self.features))]
+        self.training_data = random.sample(self.index_list, int(0.80 * len(self.features)))
+        self.test_data = [index for index in self.index_list if index not in self.training_data]
+        self.shuffle_all()
 
     def normalize_data(self, normalizer_function):
 
@@ -146,3 +147,11 @@ class MultiClassDataset(DatasetMixin):
 
         for key in self.label_dictionary.keys():
             yield key
+
+    def shuffle_all(self):
+        random.shuffle(self.index_list)
+
+    def __iter__(self):
+
+        for index in self.index_list:
+            yield (self.features[index], self.values[index])

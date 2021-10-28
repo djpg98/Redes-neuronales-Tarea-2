@@ -68,7 +68,7 @@ class Layer:
                 true_positives[key] = 0
                 false_positives[key] = 0
 
-            for features, expected_value in dataset.training_data_iter():
+            for features, expected_value in dataset:
 
                 output_value = self.output(features)
 
@@ -105,11 +105,11 @@ class Layer:
 
             if not epoch_errors:
                 if verbose:
-                    print(f'{current_epoch}, {accuracy(dataset.training_data_size(), error_number)}, {precision_string}')
+                    print(f'{current_epoch}, {accuracy(dataset.size(), error_number)}, {precision_string}')
                 break
             else:
                 if verbose:
-                    print(f'{current_epoch}, {accuracy(dataset.training_data_size(), error_number)}, {precision_string}')
+                    print(f'{current_epoch}, {accuracy(dataset.size(), error_number)}, {precision_string}')
                     dataset.shuffle_training_data()
 
     """ Devuelve la precision y la accuracy para un dataset test
@@ -134,7 +134,7 @@ class Layer:
             false_positives[key] = 0
 
 
-        for features, expected_value in dataset.test_data_iter():
+        for features, expected_value in dataset:
 
             output_value = self.output(features)
 
@@ -165,7 +165,7 @@ class Layer:
             precision_list.append(round(precision(true_positives[key], false_positives[key]), 2))
 
         precision_string = ",".join([str(value) for value in precision_list])
-        print(f'{accuracy(dataset.test_data_size(), error_number)}, {precision_string}')
+        print(f'{accuracy(dataset.size(), error_number)}, {precision_string}')
 
         
 
