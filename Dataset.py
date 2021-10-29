@@ -71,10 +71,19 @@ class DatasetMixin:
 
 """ Esta clase representa a los datasets donde solo existen dos categorías
     Una será representada con la etiqueta 1 (La llamada categoría positiva)
-    y las demás con 0
+    y las demás con 0. La clase utiliza los atributos training_data y 
+    test_data para determinar los índices de los elementos de la lista que
+    contiene el dataset que serán utilizados en los conjuntos de entrenamiento
+    y de prueba. Nótese que shuffle_training_data no altera el orden de los
+    elementos en el dataset, solo el de los índices en training_data
 """
 class BinaryDataset(DatasetMixin):
 
+    """ Constructor de la clase
+        Parámetros:
+            - Datafile: El archivo con los datos en formato csv.
+            - positive_category: La categoría que utilizará la etiqueta 1
+    """
     def __init__(self, datafile, positive_category):
 
         self.features = []
@@ -105,9 +114,21 @@ class BinaryDataset(DatasetMixin):
         self.training_data = random.sample(index_list, int(0.80 * len(self.features)))
         self.test_data = [index for index in index_list if index not in self.training_data]
 
-
+""" Esta clase se utiliza para datasets de múltiples categorías.
+    En la etiqueta se guarda el ínidce del perceptron en la lista de
+    perceptrones de la clase Layer que es el encargado de reconocer
+    dicha categoría. Utiliza el atributo index_list para determinar
+    el orden en que se iterará el dataset
+"""
 class MultiClassDataset(DatasetMixin):
 
+    """ Constructor de la clase.
+        Parámetros:
+            - datafile: El archivo con los datos en formato csv
+            - label_dictionary: Un diccionario que contiene el
+            índice del perceptrón encargado de reconocer la categoría
+            con el label indicado
+    """
     def __init__(self, datafile, label_dictionary):
 
         self.features = []
@@ -135,22 +156,34 @@ class MultiClassDataset(DatasetMixin):
         self.test_data = [index for index in self.index_list if index not in self.training_data]
         self.shuffle_all()
 
+    """ Utiliza una función para normalizar los datos
+        - normalizer_function: Función utilizada para normalizar 
+    """
     def normalize_data(self, normalizer_function):
 
         for i in range(len(self.features)):
             self.features[i] = list(map(normalizer_function, self.features[i]))
 
+    """ Dada la etiqueta de la categoría, devuelve el índice del perceptrón
+        encargado de reconocerla
+        - label: Etiqueta de la categoría
+    """
     def get_label_index(self, label):
         return self.label_dictionary[label]
 
+    """ Iterar por todas las etiquetas (Categorías) posibles"""
     def get_labels(self):
 
         for key in self.label_dictionary.keys():
             yield key
 
+    """ Altera aleatoriamente el orden de los índices en index_list,
+        lo que permite que se pueda iterar en orden distinto en
+        distintas epochs"""
     def shuffle_all(self):
         random.shuffle(self.index_list)
 
+    """" Iterador por todos los elementos del dataset"""
     def __iter__(self):
 
         for index in self.index_list:

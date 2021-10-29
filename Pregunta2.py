@@ -16,5 +16,5 @@ classifier = MLP([layer1, layer2, layer3])
 
 #Output para el vector dado
 #(Como no estamos usando la clase Dataset, se debe
-# agregar manualmente el termino de sesgo)
+# agregar manualmente el término de sesgo)
 print(classifier.output([1] + input_vector))
