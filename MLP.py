@@ -164,6 +164,10 @@ class Layer:
         for key in dataset.get_labels():
             precision_list.append(round(precision(true_positives[key], false_positives[key]), 2))
 
+        print("ERROR NUMBER")
+        print(error_number)
+        print("SIZE")
+        print(dataset.size())
         precision_string = ",".join([str(value) for value in precision_list])
         print(f'{accuracy(dataset.size(), error_number)}, {precision_string}')
 

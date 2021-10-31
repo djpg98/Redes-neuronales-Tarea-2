@@ -1,6 +1,9 @@
 def precision(true_positives, false_positives):
 
-    return (true_positives/(true_positives+false_positives))
+    try:
+        return (true_positives/(true_positives+false_positives))
+    except:
+        return -1
 
 def accuracy(total_data, errors):
 
