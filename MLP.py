@@ -110,7 +110,7 @@ class Layer:
             else:
                 if verbose:
                     print(f'{current_epoch}, {accuracy(dataset.size(), error_number)}, {precision_string}')
-                    dataset.shuffle_training_data()
+                    dataset.shuffle_all()
 
     """ Devuelve la precision y la accuracy para un dataset test
         Parámetros:
