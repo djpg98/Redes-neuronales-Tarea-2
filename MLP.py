@@ -121,6 +121,9 @@ class Layer:
     """
     def eval(self, dataset):
 
+        dataset.add_bias_term()
+        assert(dataset.feature_vector_length() == len(self.neurons[0].weights))
+
         labels_header = ",".join(["prec. label " + str(key) for key in dataset.get_labels()])
         print('Test information\n')
         print(f'accuracy, {labels_header}')
