@@ -6,7 +6,7 @@ dataset_train.normalize_data(lambda x: x/255)
 classifier = Layer(
     dimension=10, 
     input_dimension=784, 
-    activation_function=lambda x: 1 if x >= 0 else 0
+    activation_function=lambda x: 1 if x >= 0 else -1
 )
 
 classifier.train_layer(dataset_train, 50, 0.001, True)
